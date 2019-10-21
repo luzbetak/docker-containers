@@ -1,0 +1,75 @@
+#!/bin/bash 
+#--------------------------------------------------------------------------------------------#
+if [ -z "$1" ]; then
+    echo "+----------------------------------------------------------------------------------+"
+    echo "|  ./run           -- Help                                                         |"
+    echo "+----------------------------------------------------------------------------------+"
+    echo "|  ./run build     -- docker build -t test .                                       |"
+    echo "|  ./run run       -- docker container run -it test                                |"
+    echo "+----------------------------------------------------------------------------------+"
+    echo "|  ./run ps        -- docker ps  (-a -l)                                           |"
+    echo "|  ./run images    -- docker images                                                |"
+    echo "+----------------------------------------------------------------------------------+"
+    echo "|  ./run start     -- docker container start <50e609c7d37c>                        |"
+    echo "|  ./run stop      -- stop all running containers                                  |"
+    echo "|  ./run kill      -- kill all running containers                                  |"
+    echo "|  ./run delete    -- delete all <containers or images>                            |"
+    echo "|  ./run delall    -- delete all containers and images                             |"
+    echo "+----------------------------------------------------------------------------------+"
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "build" ] 2>/dev/null; then
+
+    echo "Build an image from the Dockerfile and assign it a name."
+    docker build -t test . 
+
+elif [ "$1" == "run" ] 2>/dev/null; then
+    echo "Detach: CTRL + P + Q"
+    docker container run -it test
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "ps" ] 2>/dev/null; then
+    docker ps $2
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "images" ] 2>/dev/null; then
+    docker images
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "start" ] 2>/dev/null; then
+    if [ -z "$2" ]; then
+        echo "Container Argument Missing"
+        docker ps -a 
+    elif [ "$1" == "ps" ] 2>/dev/null; then
+        docker container start ${2}
+    fi
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "stop" ] 2>/dev/null; then
+    docker stop $(docker ps -a -q) # stops all running containers    
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "kill" ] 2>/dev/null; then
+    docker kill $(docker ps -q)
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "delete" ] 2>/dev/null; then
+
+    if [ -z "$2" ]; then
+        echo "Provide delete containers or images"
+    
+    elif [ "$2" == "containers" ] 2>/dev/null; then
+        echo "Deleting all stopped containers " 
+        docker rm $(docker ps -a -q)
+    
+    elif [ "$2" == "images" ] 2>/dev/null; then
+        echo "Deleting all images" 
+        docker rmi $(docker images -q)
+    fi
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "delall" ] 2>/dev/null; then
+
+      docker rm $(docker ps -a -q)
+      docker rmi $(docker images -q)
+fi
+#--------------------------------------------------------------------------------------------#
+

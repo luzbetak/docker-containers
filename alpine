@@ -1,0 +1,111 @@
+#!/bin/bash 
+#--------------------------------------------------------------------------------------------#
+if [ -z "$1" ]; then
+    echo "+-------------------+-----------------------------------------------------------------+"
+    echo "|  ./alpine         |  Help                                                           |"
+    echo "|  ./alpine search  |  docker search apline                                           | "
+    echo "+-------------------+-----------------------------------------------------------------+"
+    echo "|  ./alpine alpine  |  docker run --name alpy -dit alpine                             |"
+    echo "|  ./alpine update  |  docker exec -it alpy /sbin/apk update                          |"
+    echo "|  ./alpine service |  docker exec -it alpy /sbin/apk add openrc --no-cache           |"
+    echo "|  ./alpine search  |  docker exec -it alpy /sbin/apk search -v <package>             |"
+    echo "|  ./alpine perl    |  docker exec -it alpy /sbin/apk add perl                        |"
+    echo "|  ./alpine attach  |  docker attach alpy                                             |"
+    echo "+-------------------+-----------------------------------------------------------------+"
+    echo "|  ./alpine start   |  docker container start <CONTAINER ID>                          |"
+    echo "|  ./alpine ps      |  docker ps  (-a -l)                                             |"
+    echo "|  ./alpine images  |  docker images                                                  |"
+    echo "+-------------------+-----------------------------------------------------------------+"
+    echo "|  ./alpine stop    |  Stop All Running Containers                                    |"
+    echo "|  ./alpine kill    |  Kill All Running Containers                                    |"
+    echo "|  ./alpine delete  |  Delete All < Container or Image >                              |"
+    echo "|  ./alpine delall  |  Delete All Containers and Images                               |"
+    echo "|  ./alpine prune   |  Delete All Containers and Images                               |"
+    echo "+-------------------+-----------------------------------------------------------------+"
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "alpine" ] 2>/dev/null; then
+    echo "Detach: CTRL + P + Q "
+    docker run --name alpy -dit alpine 
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "update" ] 2>/dev/null; then
+    docker exec -it alpy /sbin/apk update
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "service" ] 2>/dev/null; then
+    docker exec -it alpy /sbin/apk add openrc --no-cache  
+    docker exec -it alpy /sbin/rc-service --list
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "search" ] 2>/dev/null; then
+    docker exec -it alpy /sbin/apk search -v ${2} 
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "perl" ] 2>/dev/null; then
+    docker exec -it alpy /sbin/apk add perl 
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "attach" ] 2>/dev/null; then
+    docker attach ${2}
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "search" ] 2>/dev/null; then
+    docker search centos
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "ps" ] 2>/dev/null; then
+    docker ps $2
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "images" ] 2>/dev/null; then
+    docker images
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "start" ] 2>/dev/null; then
+    if [ -z "$2" ]; then
+        echo "Container Argument Missing"
+        docker ps -a 
+    elif [ "$1" == "ps" ] 2>/dev/null; then
+        docker container start ${2}
+    fi
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "stop" ] 2>/dev/null; then
+    docker stop $(docker ps -a -q) # stops all running containers    
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "kill" ] 2>/dev/null; then
+    docker kill $(docker ps -q)
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "delete" ] 2>/dev/null; then
+
+    if [ -z "$2" ]; then
+        echo "Provide delete containers or images"
+    
+    elif [ "$2" == "containers" ] 2>/dev/null; then
+        echo "Deleting all stopped containers " 
+        docker rm $(docker ps -a -q)
+    
+    elif [ "$2" == "images" ] 2>/dev/null; then
+        echo "Deleting all images" 
+        docker rmi $(docker images -q)
+    fi
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "delall" ] 2>/dev/null; then
+
+      docker rm  -f $(docker ps -a -q)
+      docker rmi -f $(docker images -q)
+
+#--------------------------------------------------------------------------------------------#
+elif [ "$1" == "prune" ] 2>/dev/null; then
+
+    docker volume ls
+    docker volume prune      
+fi
+#--------------------------------------------------------------------------------------------#
+#                                 DOCKER EXAMPLES
+#--------------------------------------------------------------------------------------------#
+# docker run --name centos-linux -d centos /bin/sh -c "while true; do ping 8.8.8.8; done"
+# docker ps
+# docker logs 6acfc613c604
+#--------------------------------------------------------------------------------------------#
+# docker exec -it centos-linux /bin/bash
+# docker exec -it centos-linux ip add show
+# docker stop 6acfc613c604
+#--------------------------------------------------------------------------------------------#
+
